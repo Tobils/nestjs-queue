@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  # 1. database gateway
+  db:
+    image: 'postgres'
+    container_name: 'app-db-cached'
+    ports:
+      - '54321:5432'
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: user
+      POSTGRES_DB: db-app-cache
+      PGDATA: /data/postgres
+    volumes:
+      - db:/data/postgres
+    restart: unless-stopped
+
+  # 2. adminer
+  adminer:
+    image: adminer
+    container_name: 'app-db-cached-adminer'
+    restart: always
+    ports:
+      - 18081:8080
+
+  # 3. redis-queue
+  redis-queue:
+    image: redis:latest
+    restart: on-failure
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis-queue-vol:/data
+
+  # 4. redis-interface
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    environment:
+      - REDIS_HOSTS=local:redis-queue:6379
+    ports:
+      - '18082:8081'
+    depends_on:
+      - redis-queue
+
+volumes:
+  db:
+  redis-queue-vol:
