@@ -18,7 +18,7 @@ export class QueueBinConsumer {
   /**
    *
    * @param ms number of milisecond
-   * @returns
+   * @returns promise
    */
   sleep(ms: number) {
     return new Promise((resolve) => {
